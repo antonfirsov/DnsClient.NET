@@ -1,0 +1,8 @@
+[submodule "wftresolver2"]
+	path = wftresolver2
+	url = https://github.com/antonfirsov/resolver.git
+	branch = main
+[submodule "resolver"]
+	path = resolver
+	url = https://github.com/antonfirsov/resolver.git
+	branch = main
