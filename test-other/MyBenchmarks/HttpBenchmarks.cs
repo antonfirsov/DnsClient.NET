@@ -16,6 +16,9 @@ namespace MyBenchmarks;
 [ShortRunJob]
 public class HttpBenchmarks
 {
+    private const string Host = "localhost";
+    private const int Port = 5000;
+
     private static readonly LookupClient s_dnsClient = new LookupClient(new LookupClientOptions()
     {
         UseCache = false
@@ -25,7 +28,7 @@ public class HttpBenchmarks
 
     private HttpClient _httpClient;
 
-    [Params(16, 1024)]
+    [Params(16, 128 * 1024)]
     public int Bytes { get; set; }
 
     public enum UseResolver
@@ -45,8 +48,8 @@ public class HttpBenchmarks
         var s = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
         try
         {
-            var v4Task = s_dnsClient.QueryAsync("PRG-NET-TOWER-01", QueryType.A, cancellationToken: ct);
-            var v6Task = s_dnsClient.QueryAsync("PRG-NET-TOWER-01", QueryType.AAAA, cancellationToken: ct);
+            var v4Task = s_dnsClient.QueryAsync(Host, QueryType.A, cancellationToken: ct);
+            var v6Task = s_dnsClient.QueryAsync(Host, QueryType.AAAA, cancellationToken: ct);
 
             await Task.WhenAll(v4Task, v6Task).ConfigureAwait(false);
 
@@ -69,7 +72,7 @@ public class HttpBenchmarks
                 throw new Exception("Resolution failed");
             }
             IPAddress[] addresses = records.Select(r => r.Address).ToArray();
-            await s.ConnectAsync(addresses, 443, ct).ConfigureAwait(false);
+            await s.ConnectAsync(addresses, Port, ct).ConfigureAwait(false);
             return new NetworkStream(s, ownsSocket: true);
         }
         catch
@@ -84,12 +87,12 @@ public class HttpBenchmarks
         var s = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
         try
         {
-            var v4Task = s_resolver.ResolveIPAddress("PRG-NET-TOWER-01", AddressFamily.InterNetwork);
-            var v6Task = s_resolver.ResolveIPAddress("PRG-NET-TOWER-01", AddressFamily.InterNetworkV6);
+            var v4Task = s_resolver.ResolveIPAddress(Host, AddressFamily.InterNetwork);
+            var v6Task = s_resolver.ResolveIPAddress(Host, AddressFamily.InterNetworkV6);
             var v4Result = await v4Task;
             var v6Result = await v6Task;
             IPAddress[] addresses = v4Result.Select(r => r.Address).Concat(v6Result.Select(r => r.Address)).ToArray();
-            await s.ConnectAsync(addresses, 443, ct).ConfigureAwait(false);
+            await s.ConnectAsync(addresses, Port, ct).ConfigureAwait(false);
             return new NetworkStream(s, ownsSocket: true);
         }
         catch
@@ -112,7 +115,7 @@ public class HttpBenchmarks
         _httpClient = new HttpClient(handler);
         _httpClient.DefaultRequestHeaders.ConnectionClose = true;
 
-        _uri = new Uri($"http://PRG-NET-TOWER-01:5000?length={Bytes}");
+        _uri = new Uri($"http://{Host}:{Port}?length={Bytes}");
     }
 
     [Benchmark]
