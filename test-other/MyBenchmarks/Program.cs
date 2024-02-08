@@ -7,7 +7,7 @@ using BenchmarkDotNet.Running;
 
 try
 {
-    IPHostEntry e = Dns.GetHostEntry("example.lol");
+    IPHostEntry e = await Dns.GetHostEntryAsync("example.lol").ConfigureAwait(false);
     Console.WriteLine("yay! " + e.AddressList.First());
 }
 catch(Exception ex)
