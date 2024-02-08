@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using BenchmarkDotNet.Attributes;
 using DnsClient;
 using DnsClient.Protocol;
+using Test.Net;
 
 namespace MyBenchmarks;
 
@@ -20,18 +21,26 @@ public class HttpBenchmarks
         UseCache = false
     });
 
+    private static readonly Resolver s_resolver = new Resolver();
+
     private HttpClient _httpClient;
 
     [Params(16, 1024)]
     public int Bytes { get; set; }
 
-    [Params(false, true)]
-    public bool UseDnsClient { get; set; }
+    public enum UseResolver
+    {
+        Statndard,
+        DnsClient,
+        Wft
+    }
+
+    [Params(UseResolver.Statndard, UseResolver.DnsClient, UseResolver.Wft)]
+    public UseResolver Resolver { get; set; }
 
     private Uri _uri;
 
-
-    public static async ValueTask<Stream> ConnectHandler(SocketsHttpConnectionContext ctx, CancellationToken ct)
+    public static async ValueTask<Stream> DnsClientConnectHandler(SocketsHttpConnectionContext ctx, CancellationToken ct)
     {
         var s = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
         try
@@ -70,14 +79,34 @@ public class HttpBenchmarks
         }
     }
 
+    public static async ValueTask<Stream> WftConnectHandler(SocketsHttpConnectionContext ctx, CancellationToken ct)
+    {
+        var s = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+        try
+        {
+            var v4Task = s_resolver.ResolveIPAddress("httpbin.org", AddressFamily.InterNetwork);
+            var v6Task = s_resolver.ResolveIPAddress("httpbin.org", AddressFamily.InterNetworkV6);
+            var v4Result = await v4Task;
+            var v6Result = await v6Task;
+            IPAddress[] addresses = v4Result.Select(r => r.Address).Concat(v6Result.Select(r => r.Address)).ToArray();
+            await s.ConnectAsync(addresses, 443, ct).ConfigureAwait(false);
+            return new NetworkStream(s, ownsSocket: true);
+        }
+        catch
+        {
+            s.Dispose();
+            throw;
+        }
+    }
+
     [GlobalSetup]
     public void Setup()
     {
         SocketsHttpHandler handler = new SocketsHttpHandler();
 
-        if (UseDnsClient)
+        if (Resolver != UseResolver.Statndard)
         {
-            handler.ConnectCallback = ConnectHandler;
+            handler.ConnectCallback = Resolver == UseResolver.DnsClient ? DnsClientConnectHandler : WftConnectHandler;
         }
 
         _httpClient = new HttpClient(handler);

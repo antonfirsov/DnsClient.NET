@@ -5,13 +5,16 @@
 using System.Net;
 using BenchmarkDotNet.Attributes;
 using DnsClient;
+using Test.Net;
 
 namespace MyBenchmarks;
 
 [MemoryDiagnoser]
+[ShortRunJob]
 public abstract class LookupBenchmarks
 {
     private LookupClient _client;
+    private Resolver _resolver = new Resolver();
 
     public abstract string HostName { get; }
     public virtual bool UseCache => false;
@@ -68,6 +71,9 @@ public abstract class LookupBenchmarks
 
     [Benchmark]
     public Task QueryAsyncA() => _client.QueryAsync(HostName, QueryType.A);
+
+    [Benchmark]
+    public Task WftAsyncA() => _resolver.ResolveIPAddress(HostName, System.Net.Sockets.AddressFamily.InterNetwork).AsTask();
 }
 
 public class LookupBenchmarks_Localhost : LookupBenchmarks

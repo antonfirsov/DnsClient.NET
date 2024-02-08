@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DnsClient\DnsClient.csproj" />
     <ProjectReference Include="..\DnsClient.TestsCommon\DnsClient.TestsCommon.csproj" />
+    <ProjectReference Include="..\..\resolver\resolver.csproj" />
   </ItemGroup>
   
   <ItemGroup>
