@@ -16,6 +16,8 @@ public abstract class LookupBenchmarks
 
     public abstract string HostName { get; }
     public virtual bool UseCache => false;
+    private int _successCnt;
+    private int _failureCnt;
 
     [GlobalSetup(Targets = [nameof(QueryA), nameof(QueryAsyncA)])]
     public void SetupClient()
@@ -26,11 +28,41 @@ public abstract class LookupBenchmarks
         });
     }
 
-    [Benchmark]
-    public void GetHostEntry() => _ = Dns.GetHostEntry(HostName);
+    [GlobalCleanup]
+    public void Cleanup()
+    {
+        Console.WriteLine($"----------- SUCC: {_successCnt} F: {_failureCnt} -----------");
+        _successCnt = 0;
+        _failureCnt = 0;
+    }
 
     [Benchmark]
-    public Task GetHostEntryAsync() => Dns.GetHostEntryAsync(HostName);
+    public void GetHostEntry()
+    {
+        try
+        {
+            Dns.GetHostEntry(HostName);
+            _successCnt++;
+        }
+        catch
+        {
+            _failureCnt++;
+        }
+    }
+
+    [Benchmark]
+    public async Task GetHostEntryAsync()
+    {
+        try
+        {
+            _ = Dns.GetHostEntryAsync(HostName);
+            _successCnt++;
+        }
+        catch
+        {
+            _failureCnt++;
+        }
+    }
 
     [Benchmark]
     public void QueryA() => _client.Query(HostName, QueryType.A);
