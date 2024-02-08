@@ -9,15 +9,11 @@ using DnsClient;
 namespace MyBenchmarks;
 
 [MemoryDiagnoser]
-public class LookupBenchmarks
+public abstract class LookupBenchmarks
 {
     private readonly LookupClient _client = new LookupClient();
 
-    [Params(
-        "localhost"
-        , "example.lol"
-        )]
-    public string HostName { get; set; }
+    public abstract string HostName { get; }
 
     [Benchmark]
     public void GetHostEntry() => _ = Dns.GetHostEntry(HostName);
@@ -32,3 +28,13 @@ public class LookupBenchmarks
     public Task QueryAsyncA() => _client.QueryAsync(HostName, QueryType.A);
 }
 
+
+public class LookupBenchmarks_Localhost : LookupBenchmarks
+{
+    public override string HostName => "localhost";
+}
+
+public class LookupBenchmarks_Custom : LookupBenchmarks
+{
+    public override string HostName => "example.lol";
+}
