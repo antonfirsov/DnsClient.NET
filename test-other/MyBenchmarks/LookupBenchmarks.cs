@@ -9,7 +9,6 @@ using DnsClient;
 namespace MyBenchmarks;
 
 [MemoryDiagnoser]
-[ShortRunJob]
 public abstract class LookupBenchmarks
 {
     private LookupClient _client;
@@ -55,7 +54,7 @@ public abstract class LookupBenchmarks
     {
         try
         {
-            _ = Dns.GetHostEntryAsync(HostName);
+            _ = await Dns.GetHostEntryAsync(HostName);
             _successCnt++;
         }
         catch
