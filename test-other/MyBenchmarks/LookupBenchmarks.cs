@@ -9,11 +9,24 @@ using DnsClient;
 namespace MyBenchmarks;
 
 [MemoryDiagnoser]
+[ShortRunJob]
 public abstract class LookupBenchmarks
 {
-    private readonly LookupClient _client = new LookupClient();
+    private LookupClient _client;
 
     public abstract string HostName { get; }
+
+    [Params(true, false)]
+    public bool UseCache { get; set; }
+
+    [GlobalSetup(Targets = [nameof(QueryA), nameof(QueryAsyncA)])]
+    public void SetupClient()
+    {
+        _client = new LookupClient(new LookupClientOptions()
+        {
+            UseCache = UseCache
+        });
+    }
 
     [Benchmark]
     public void GetHostEntry() => _ = Dns.GetHostEntry(HostName);
