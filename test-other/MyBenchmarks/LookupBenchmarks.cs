@@ -54,7 +54,7 @@ public abstract class LookupBenchmarks
     {
         try
         {
-            _ = await Dns.GetHostEntryAsync(HostName);
+            _ = await Dns.GetHostEntryAsync(HostName).ConfigureAwait(false);
             _successCnt++;
         }
         catch
