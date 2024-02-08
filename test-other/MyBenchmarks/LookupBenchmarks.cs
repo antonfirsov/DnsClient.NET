@@ -15,9 +15,7 @@ public abstract class LookupBenchmarks
     private LookupClient _client;
 
     public abstract string HostName { get; }
-
-    [Params(true, false)]
-    public bool UseCache { get; set; }
+    public virtual bool UseCache => false;
 
     [GlobalSetup(Targets = [nameof(QueryA), nameof(QueryAsyncA)])]
     public void SetupClient()
@@ -41,13 +39,23 @@ public abstract class LookupBenchmarks
     public Task QueryAsyncA() => _client.QueryAsync(HostName, QueryType.A);
 }
 
-
 public class LookupBenchmarks_Localhost : LookupBenchmarks
 {
     public override string HostName => "localhost";
 }
 
+public class LookupBenchmarks_LocalhostCached : LookupBenchmarks_Localhost
+{
+    public override bool UseCache => true;
+}
+
 public class LookupBenchmarks_Custom : LookupBenchmarks
 {
     public override string HostName => "example.lol";
+}
+
+
+public class LookupBenchmarks_CustomCached : LookupBenchmarks_Custom
+{
+    public override bool UseCache => true;
 }
