@@ -4,15 +4,15 @@
 
 using System.Net;
 using BenchmarkDotNet.Running;
+using MyBenchmarks;
 
-try
-{
-    IPHostEntry e = await Dns.GetHostEntryAsync("example.lol").ConfigureAwait(false);
-    Console.WriteLine("yay! " + e.AddressList.First());
-}
-catch (Exception ex)
-{
-    Console.WriteLine(ex.Message);
-}
+//SocketsHttpHandler handler = new SocketsHttpHandler()
+//{
+//    ConnectCallback = HttpBenchmarks.ConnectHandler
+//};
+
+//HttpClient client = new HttpClient(handler);
+//HttpResponseMessage response = await client.GetAsync("https://httpbin.org/bytes/100").ConfigureAwait(false);
+//Console.WriteLine(response.StatusCode);
 
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
