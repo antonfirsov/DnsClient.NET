@@ -4,13 +4,19 @@
 
 using System.Net;
 using BenchmarkDotNet.Attributes;
+using DnsClient;
 
 namespace MyBenchmarks;
 
 [MemoryDiagnoser]
 public class LookupBenchmarks
 {
-    [Params("localhost")]
+    private readonly LookupClient _client = new LookupClient();
+
+    [Params(
+        "localhost"
+        , "example.lol"
+        )]
     public string HostName { get; set; }
 
     [Benchmark]
@@ -18,5 +24,11 @@ public class LookupBenchmarks
 
     [Benchmark]
     public Task GetHostEntryAsync() => Dns.GetHostEntryAsync(HostName);
+
+    [Benchmark]
+    public void QueryA() => _client.Query(HostName, QueryType.A);
+
+    [Benchmark]
+    public Task QueryAsyncA() => _client.QueryAsync(HostName, QueryType.A);
 }
 
