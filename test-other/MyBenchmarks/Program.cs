@@ -13,4 +13,4 @@ HttpClient client = new HttpClient(handler);
 HttpResponseMessage response = await client.GetAsync("http://localhost:5000?length=10").ConfigureAwait(false);
 Console.WriteLine(response.StatusCode);
 
-//BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
+BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
