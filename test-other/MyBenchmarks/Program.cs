@@ -4,13 +4,13 @@
 using BenchmarkDotNet.Running;
 using MyBenchmarks;
 
-//SocketsHttpHandler handler = new SocketsHttpHandler()
-//{
-//    ConnectCallback = HttpBenchmarks.WftConnectHandler
-//};
+SocketsHttpHandler handler = new SocketsHttpHandler()
+{
+    ConnectCallback = HttpBenchmarks.WftConnectHandler
+};
 
-//HttpClient client = new HttpClient(handler);
-//HttpResponseMessage response = await client.GetAsync("https://httpbin.org/bytes/100").ConfigureAwait(false);
-//Console.WriteLine(response.StatusCode);
+HttpClient client = new HttpClient(handler);
+HttpResponseMessage response = await client.GetAsync("http://PRG-NET-TOWER-01:5000?length=10").ConfigureAwait(false);
+Console.WriteLine(response.StatusCode);
 
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
