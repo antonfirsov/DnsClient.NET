@@ -73,7 +73,7 @@ public abstract class LookupBenchmarks
     public Task QueryAsyncA() => _client.QueryAsync(HostName, QueryType.A);
 
     [Benchmark]
-    public Task WftAsyncA() => _resolver.ResolveIPAddress(HostName, System.Net.Sockets.AddressFamily.InterNetwork).AsTask();
+    public Task MinimalProtoAsyncA() => _resolver.ResolveIPAddress(HostName, System.Net.Sockets.AddressFamily.InterNetwork).AsTask();
 }
 
 public class LookupBenchmarks_Localhost : LookupBenchmarks
@@ -86,13 +86,13 @@ public class LookupBenchmarks_LocalhostCached : LookupBenchmarks_Localhost
     public override bool UseCache => true;
 }
 
-public class LookupBenchmarks_Custom : LookupBenchmarks
+public class LookupBenchmarks_ZeroTtl : LookupBenchmarks
 {
     public override string HostName => "example.lol";
 }
 
 
-public class LookupBenchmarks_CustomCached : LookupBenchmarks_Custom
+public class LookupBenchmarks_CustomCached : LookupBenchmarks_ZeroTtl
 {
     public override bool UseCache => true;
 }

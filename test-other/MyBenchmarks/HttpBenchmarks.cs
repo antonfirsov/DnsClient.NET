@@ -32,10 +32,10 @@ public class HttpBenchmarks
     {
         Statndard,
         DnsClient,
-        Wft
+        MinimalProto
     }
 
-    [Params(UseResolver.Statndard, UseResolver.DnsClient, UseResolver.Wft)]
+    [Params(UseResolver.Statndard, UseResolver.DnsClient, UseResolver.MinimalProto)]
     public UseResolver Resolver { get; set; }
 
     private Uri _uri;
@@ -45,8 +45,8 @@ public class HttpBenchmarks
         var s = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
         try
         {
-            var v4Task = s_dnsClient.QueryAsync("httpbin.org", QueryType.A, cancellationToken: ct);
-            var v6Task = s_dnsClient.QueryAsync("httpbin.org", QueryType.AAAA, cancellationToken: ct);
+            var v4Task = s_dnsClient.QueryAsync("PRG-NET-TOWER-01", QueryType.A, cancellationToken: ct);
+            var v6Task = s_dnsClient.QueryAsync("PRG-NET-TOWER-01", QueryType.AAAA, cancellationToken: ct);
 
             await Task.WhenAll(v4Task, v6Task).ConfigureAwait(false);
 
@@ -84,8 +84,8 @@ public class HttpBenchmarks
         var s = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
         try
         {
-            var v4Task = s_resolver.ResolveIPAddress("httpbin.org", AddressFamily.InterNetwork);
-            var v6Task = s_resolver.ResolveIPAddress("httpbin.org", AddressFamily.InterNetworkV6);
+            var v4Task = s_resolver.ResolveIPAddress("PRG-NET-TOWER-01", AddressFamily.InterNetwork);
+            var v6Task = s_resolver.ResolveIPAddress("PRG-NET-TOWER-01", AddressFamily.InterNetworkV6);
             var v4Result = await v4Task;
             var v6Result = await v6Task;
             IPAddress[] addresses = v4Result.Select(r => r.Address).Concat(v6Result.Select(r => r.Address)).ToArray();
@@ -112,7 +112,7 @@ public class HttpBenchmarks
         _httpClient = new HttpClient(handler);
         _httpClient.DefaultRequestHeaders.ConnectionClose = true;
 
-        _uri = new Uri($"https://httpbin.org/bytes/{Bytes}");
+        _uri = new Uri($"http://PRG-NET-TOWER-01:5000?length={Bytes}");
     }
 
     [Benchmark]
