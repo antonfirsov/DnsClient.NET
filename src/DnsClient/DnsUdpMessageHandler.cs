@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
@@ -53,6 +54,7 @@ namespace DnsClient
             }
         }
 
+
         public override async Task<DnsResponseMessage> QueryAsync(
             IPEndPoint endpoint,
             DnsRequestMessage request,
@@ -60,25 +62,25 @@ namespace DnsClient
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var udpClient = new UdpClient(endpoint.AddressFamily);
-
+            //var udpClient = new UdpClient(endpoint.AddressFamily);
+            Socket socket = new Socket(endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(0x10000);
             try
             {
                 using var callback = cancellationToken.Register(() =>
                 {
-                    udpClient.Dispose();
+                    socket.Dispose();
                 });
 
                 using (var writer = new DnsDatagramWriter())
                 {
                     GetRequestData(request, writer);
-                    await udpClient.SendAsync(writer.Data.Array, writer.Data.Count, endpoint).ConfigureAwait(false);
+                    await socket.SendToAsync(writer.Data, SocketFlags.None, endpoint).ConfigureAwait(false);
+                    //await udpClient.SendAsync(writer.Data.Array, writer.Data.Count, endpoint).ConfigureAwait(false);
                 }
 
-                var readSize = udpClient.Available > MaxSize ? udpClient.Available : MaxSize;
-
-                var result = await udpClient.ReceiveAsync().ConfigureAwait(false);
-                var response = GetResponseMessage(new ArraySegment<byte>(result.Buffer, 0, result.Buffer.Length));
+                var result = await socket.ReceiveFromAsync(new ArraySegment<byte>(buffer), SocketFlags.None, endpoint).ConfigureAwait(false);
+                var response = GetResponseMessage(new ArraySegment<byte>(buffer, 0, result.ReceivedBytes));
                 ValidateResponse(request, response);
                 return response;
             }
@@ -93,9 +95,10 @@ namespace DnsClient
             }
             finally
             {
+                ArrayPool<byte>.Shared.Return(buffer);
                 try
                 {
-                    udpClient.Dispose();
+                    socket.Dispose();
                 }
                 catch { }
             }

@@ -73,6 +73,21 @@ namespace DnsClient.Tests
         }
 
 #endif
+        [Theory]
+        [InlineData(QueryType.A)]
+        [InlineData(QueryType.AAAA)]
+        public async Task LookupGoogleAsync(QueryType type)
+        {
+            LookupClient client = new LookupClient();
+            IPHostEntry reference = Dns.GetHostEntry("example.com");
+            var response = await client.QueryAsync("example.com", type).ConfigureAwait(false);
+
+            Assert.True(response.Answers.AddressRecords().Count() > 0);
+            foreach (AddressRecord a in response.Answers.AddressRecords())
+            {
+                Assert.Contains(reference.AddressList, r => r.Equals(a.Address));
+            }
+        }
 
         [Fact]
         public async Task ResolveService_WithCnameRef()
@@ -216,7 +231,7 @@ namespace DnsClient.Tests
         [Fact]
         public void Lookup_DisabledEdns_NoAdditionals()
         {
-            var dns = new LookupClient(NameServer.GooglePublicDns2);
+            var dns = new LookupClient(/*NameServer.GooglePublicDns2*/);
 
             var result = dns.Query(new DnsQuestion("google.com", QueryType.A), new DnsQueryAndServerOptions()
             {
@@ -230,7 +245,7 @@ namespace DnsClient.Tests
         [Fact]
         public void Lookup_EnabledEdns_DoFlag()
         {
-            var dns = new LookupClient(NameServer.GooglePublicDns2);
+            var dns = new LookupClient(/*NameServer.GooglePublicDns2*/);
 
             var result = dns.Query(new DnsQuestion("google.com", QueryType.A), new DnsQueryAndServerOptions()
             {
