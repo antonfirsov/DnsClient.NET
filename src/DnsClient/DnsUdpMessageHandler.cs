@@ -51,6 +51,7 @@ namespace DnsClient
             }
             finally
             {
+                ArrayPool<byte>.Shared.Return(buffer);
                 try
                 {
                     socket.Dispose();
