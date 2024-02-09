@@ -89,6 +89,22 @@ namespace DnsClient.Tests
             }
         }
 
+        [Theory]
+        [InlineData(QueryType.A)]
+        [InlineData(QueryType.AAAA)]
+        public void LookupGoogleSync(QueryType type)
+        {
+            LookupClient client = new LookupClient();
+            IPHostEntry reference = Dns.GetHostEntry("example.com");
+            var response = client.Query("example.com", type);
+
+            Assert.True(response.Answers.AddressRecords().Count() > 0);
+            foreach (AddressRecord a in response.Answers.AddressRecords())
+            {
+                Assert.Contains(reference.AddressList, r => r.Equals(a.Address));
+            }
+        }
+
         [Fact]
         public async Task ResolveService_WithCnameRef()
         {
