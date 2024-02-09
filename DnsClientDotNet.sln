@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DnsClient.ThirdParty.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBenchmarks", "test-other\MyBenchmarks\MyBenchmarks.csproj", "{15F455A8-5FD7-4844-92D5-223E5EB153EC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "resolver", "resolver\resolver.csproj", "{5080EE6D-E056-4B0B-A806-1D4E4D317C5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +98,10 @@ Global
 		{15F455A8-5FD7-4844-92D5-223E5EB153EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15F455A8-5FD7-4844-92D5-223E5EB153EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15F455A8-5FD7-4844-92D5-223E5EB153EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5080EE6D-E056-4B0B-A806-1D4E4D317C5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5080EE6D-E056-4B0B-A806-1D4E4D317C5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5080EE6D-E056-4B0B-A806-1D4E4D317C5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5080EE6D-E056-4B0B-A806-1D4E4D317C5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +117,7 @@ Global
 		{8A0A1464-246A-444F-B2DC-1F5E2B850AC5} = {28CFF2BF-88D0-481F-829E-43B51DE7FB1F}
 		{FBE30B1A-F2E6-47E3-B930-838578818883} = {34E43CED-3DF4-49CE-8556-69225ABD84E6}
 		{15F455A8-5FD7-4844-92D5-223E5EB153EC} = {28CFF2BF-88D0-481F-829E-43B51DE7FB1F}
+		{5080EE6D-E056-4B0B-A806-1D4E4D317C5A} = {28CFF2BF-88D0-481F-829E-43B51DE7FB1F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E26DC1C5-A82B-4984-88DB-107C9D66271F}
