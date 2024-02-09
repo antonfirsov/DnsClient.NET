@@ -11,7 +11,8 @@ namespace DnsClient
 {
     internal class DnsUdpMessageHandler : DnsMessageHandler
     {
-        private const int MaxSize = 4096;
+        // https://serverfault.com/questions/1032873/edns-buffer-size-impact
+        private const int MaxSize = 1232;
 
         public override DnsMessageHandleType Type { get; } = DnsMessageHandleType.UDP;
 
@@ -26,7 +27,7 @@ namespace DnsClient
         {
             //var udpClient = new UdpClient(endpoint.AddressFamily);
             Socket socket = new Socket(endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(0x10000);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(MaxSize);
 
             try
             {
@@ -70,7 +71,7 @@ namespace DnsClient
 
             //var udpClient = new UdpClient(endpoint.AddressFamily);
             Socket socket = new Socket(endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(0x10000);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(MaxSize);
             try
             {
                 using var callback = cancellationToken.Register(() =>
