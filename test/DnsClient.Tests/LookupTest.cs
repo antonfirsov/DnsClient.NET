@@ -216,7 +216,7 @@ namespace DnsClient.Tests
         [Fact]
         public void Lookup_DisabledEdns_NoAdditionals()
         {
-            var dns = new LookupClient(NameServer.GooglePublicDns);
+            var dns = new LookupClient(NameServer.GooglePublicDns2);
 
             var result = dns.Query(new DnsQuestion("google.com", QueryType.A), new DnsQueryAndServerOptions()
             {
@@ -230,7 +230,7 @@ namespace DnsClient.Tests
         [Fact]
         public void Lookup_EnabledEdns_DoFlag()
         {
-            var dns = new LookupClient(NameServer.GooglePublicDns);
+            var dns = new LookupClient(NameServer.GooglePublicDns2);
 
             var result = dns.Query(new DnsQuestion("google.com", QueryType.A), new DnsQueryAndServerOptions()
             {

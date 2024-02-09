@@ -6,9 +6,8 @@ namespace DnsClient.Internal
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-    public sealed class PooledBytes : IDisposable
+    public struct PooledBytes : IDisposable
     {
-        private static readonly ArrayPool<byte> s_pool = ArrayPool<byte>.Create(4096 * 4, 100);
         private int _length;
         private ArraySegment<byte> _buffer;
         private bool _disposed = false;
@@ -21,15 +20,15 @@ namespace DnsClient.Internal
             }
 
             _length = length;
-            _buffer = new ArraySegment<byte>(s_pool.Rent(length), 0, _length);
+            _buffer = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(length), 0, _length);
         }
 
         public void Extend(int length)
         {
-            var newBuffer = s_pool.Rent(_length + length);
+            var newBuffer = ArrayPool<byte>.Shared.Rent(_length + length);
 
             System.Buffer.BlockCopy(_buffer.Array, 0, newBuffer, 0, _length);
-            s_pool.Return(_buffer.Array);
+            ArrayPool<byte>.Shared.Return(_buffer.Array);
             _length += length;
             _buffer = new ArraySegment<byte>(newBuffer, 0, _length);
         }
@@ -70,7 +69,7 @@ namespace DnsClient.Internal
             if (disposing && !_disposed)
             {
                 _disposed = true;
-                s_pool.Return(_buffer.Array, clearArray: true);
+                ArrayPool<byte>.Shared.Return(_buffer.Array, clearArray: true);
             }
         }
     }
