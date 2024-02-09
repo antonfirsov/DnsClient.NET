@@ -69,7 +69,7 @@ namespace DnsClient.Internal
             if (disposing && !_disposed)
             {
                 _disposed = true;
-                ArrayPool<byte>.Shared.Return(_buffer.Array, clearArray: true);
+                ArrayPool<byte>.Shared.Return(_buffer.Array);
             }
         }
     }

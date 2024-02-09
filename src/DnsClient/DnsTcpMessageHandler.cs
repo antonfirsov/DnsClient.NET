@@ -107,7 +107,7 @@ namespace DnsClient
             }
         }
 
-        private DnsResponseMessage QueryInternal(TcpClient client, DnsRequestMessage request, CancellationToken cancellationToken)
+        private unsafe DnsResponseMessage QueryInternal(TcpClient client, DnsRequestMessage request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -136,24 +136,21 @@ namespace DnsClient
             cancellationToken.ThrowIfCancellationRequested();
 
             var responses = new List<DnsResponseMessage>();
+            Span<byte> buf = stackalloc byte[2];
 
             do
             {
-                int length;
-                using (var lengthBuffer = new PooledBytes(2))
+                int bytesReceivedForLen = 0, readForLen;
+                while ((bytesReceivedForLen += readForLen = stream.Read(buf.Slice(bytesReceivedForLen, 2))) < 2)
                 {
-                    int bytesReceivedForLen = 0, readForLen;
-                    while ((bytesReceivedForLen += readForLen = stream.Read(lengthBuffer.Buffer, bytesReceivedForLen, 2)) < 2)
+                    if (readForLen <= 0)
                     {
-                        if (readForLen <= 0)
-                        {
-                            // disconnected, might retry
-                            throw new TimeoutException();
-                        }
+                        // disconnected, might retry
+                        throw new TimeoutException();
                     }
-
-                    length = lengthBuffer.Buffer[0] << 8 | lengthBuffer.Buffer[1];
                 }
+
+                int length = buf[0] << 8 | buf[1];
 
                 if (length <= 0)
                 {
