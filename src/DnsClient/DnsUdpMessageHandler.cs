@@ -61,7 +61,6 @@ namespace DnsClient
             }
         }
 
-
         public override async Task<DnsResponseMessage> QueryAsync(
             IPEndPoint endpoint,
             DnsRequestMessage request,
@@ -82,11 +81,10 @@ namespace DnsClient
                 using (var writer = new DnsDatagramWriter())
                 {
                     GetRequestData(request, writer);
-                    await socket.SendToAsync(writer.Data, SocketFlags.None, endpoint).ConfigureAwait(false);
-                    //await udpClient.SendAsync(writer.Data.Array, writer.Data.Count, endpoint).ConfigureAwait(false);
+                    await socket.SendToAsync(writer.Data, endpoint).ConfigureAwait(false);
                 }
 
-                var result = await socket.ReceiveFromAsync(new ArraySegment<byte>(buffer), SocketFlags.None, endpoint).ConfigureAwait(false);
+                var result = await socket.ReceiveFromAsync(new ArraySegment<byte>(buffer), endpoint).ConfigureAwait(false);
                 var response = GetResponseMessage(new ArraySegment<byte>(buffer, 0, result.ReceivedBytes));
                 ValidateResponse(request, response);
                 return response;
